@@ -1,22 +1,22 @@
 package com.romajs.ws.client;
 
 import com.romajs.ws.WebSocketServerApplication;
-import org.glassfish.tyrus.client.ClientManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
+import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
+import javax.websocket.WebSocketContainer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
 
 @ClientEndpoint
 public class ChatClientEndpoint {
@@ -45,8 +45,10 @@ public class ChatClientEndpoint {
 
     public static void main(String[] args) throws DeploymentException, IOException, InterruptedException {
 
-        ClientManager client = ClientManager.createClient();
-        Session session = client.connectToServer(ChatClientEndpoint.class, WebSocketServerApplication.getURI("/chat"));
+        ChatClientEndpoint endpoint = new ChatClientEndpoint();
+        WebSocketContainer webSocketContainer = ContainerProvider.getWebSocketContainer();
+
+        Session session = webSocketContainer.connectToServer(endpoint, WebSocketServerApplication.getURI("/chat"));
 
         Thread readLineThread = new Thread(() -> {
             BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
